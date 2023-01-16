@@ -92,13 +92,67 @@ def file_inventory_creator(input_directory,output_file_name,max_a_time,max_m_tim
                                 #if old_abs_path == False:
                                 g.write("\n")
                                 
-
-file_inventory_creator('/home/ayan/stuff/','7th.json',max_a_time,max_m_time,max_c_time, run_id)                                
+#file_inventory_creator('/home/ayan/stuff/','8th.json',max_a_time,max_m_time,max_c_time, run_id)
+                      
 
             
             
+            
+import psycopg2
+import pandas
+pd = pandas
+def json_inserter(file_name,table_name):
+        pgconn = psycopg2.connect(
+        host= 'localhost',
+        user = 'dev_test1',
+        password = 'ayan',
+        database = 'testing')
+        pgcursor = pgconn.cursor()
+       
+        df = pd.read_json (file_name,lines=True)
+        from sqlalchemy import create_engine
+        engine = create_engine('postgresql+psycopg2://dev_test1:ayan@localhost/testing')
+        print(engine)
+        df.to_sql(table_name, engine, if_exists = 'append', index=False)
+        
+        
+#json_inserter('8th.json','file_inventory')
 
-
+import psycopg2
+import pandas
+pd = pandas
+def max_dates_func(run_id,source_system_id):    
+    pgconn2 = psycopg2.connect(
+        host= 'localhost',
+        user = 'dev_test1',
+        password = 'ayan',
+        database = 'testing')
+    pgcursor2 = pgconn2.cursor()
+    print(pgcursor2.execute('INSERT INTO max_dates (create_a_time,create_m_time,create_c_time,run_id,source_system_id)'+ 
+'SELECT MAX(get_a_time) AS "max_a_time",'+
+'MAX(get_m_time) AS "max_m_time",' +
+'MAX(get_c_time) AS "max_c_time",'+
+run_id +  ",'" +
+source_system_id + "'"
+'FROM file_inventory'))
+    pgconn2.commit()
+    pgcursor2.close()
+    pgconn2.close()
+    
+import platform
+g = (platform.uname())
+source_system_id = g[0]+" "+ g[1]
+pgconn = psycopg2.connect(
+    host= 'localhost',
+    user = 'dev_test1',
+    password = 'ayan',
+    database = 'testing')
+pgcursor = pgconn.cursor()
+max_a_time= result [0][1]
+max_m_time= result [0][2]
+max_c_time= result [0][3]
+run_id= result [0][4] + 1
+#max_dates_func(str(run_id),source_system_id)
 
 
 
